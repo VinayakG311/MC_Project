@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity(),JitsiMeetActivityInterface {
 
         var defaultOptions
                 = JitsiMeetConferenceOptions.Builder()
-            .setServerURL(URL("https://8x8.vc"))
+            .setServerURL(URL("https://meet.jit.si"))
             .setFeatureFlag("welcomepage.enabled", false)
             .build();
         JitsiMeet.setDefaultConferenceOptions(defaultOptions)
@@ -43,9 +43,12 @@ class MainActivity : ComponentActivity(),JitsiMeetActivityInterface {
                     Greeting("Android")
                     Button(onClick = {
                         val options = JitsiMeetConferenceOptions.Builder()
-                            .setToken("eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtMjJmZmUxODk3YzQyNGE4NWI3Njg0ZDYyY2JlMTFhNTYvZjQyNjkxLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MTQ1OTEzODIsImV4cCI6MTcxNDU5ODU4MiwibmJmIjoxNzE0NTkxMzc3LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMjJmZmUxODk3YzQyNGE4NWI3Njg0ZDYyY2JlMTFhNTYiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6InZpbmF5YWsyMTExMyIsImlkIjoiZ29vZ2xlLW9hdXRoMnwxMDQ5OTkzMTYwMTI0NjAxNDkwNDAiLCJhdmF0YXIiOiIiLCJlbWFpbCI6InZpbmF5YWsyMTExM0BpaWl0ZC5hYy5pbiJ9fSwicm9vbSI6IioifQ.M-lP0t344IS6ga1QZiXP6MXieJBBHzu6bJe9tZbkTCPfjLQGBI0wbK5mbAIr9Yuc29hcyeKr0bRupIySKQIp-fA3kaUdp_mb1GW0HVLSUtZbVpYq9cGzDh2OA2_s_KlqhnuI9-puH1wVschA9eWl39gUObfMHfeR8SuN-yOBbXP7G1HTQdY73aCpJpcebbtwEQ_o7EQ8_ZiHFrMKb1_qNTh6-iA-HaeYMqll_BlE5sJKPA4A8hISSFEPROMOOsERLOLFo9zMm8-zhQRb4ewpIKF6-xjqsq4sZjLX3F8JuFSULpkB9NR6yYsigsh8UTTEDd4RmWkZFRbLCTL9AR7f7w")
-                            .setRoom("vpaas-magic-cookie-22ffe1897c424a85b7684d62cbe11a56/DirectFactoriesDanceSubsequently") // Settings for audio and video
+                            .setRoom("room1")
                             .build()
+                            //for mods:
+//                            .setToken("eyJhbGciOiJSUzI1NiIsImtpZCI6Ii0tLS0tQkVHSU4gUFVCTElDIEtFWS0tLS0tXG5NSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQWxjN2pnN1B1T0ZJSXQ4a2pDakVDXG5zd3FZc3F0TlIyQzhBamVlbDR5eFdwRnR1N1BNZ0F0cm5aVk5ydWhLTk1qNkkzMlRZUllWOG9UWWhTakI4ZjE5XG53czRnd1UzcmhiK3RkancrQWVYbFBrVHNiM0k5Z2Nhbk81MWZuYkJBVkhWWXR1bGtVVkRYOXdvc21ielo3NXptXG5obE5VQ25XRDdVK2N2aXEwc29ka2RyUXlMZWxEd3M2Q05BZ3EzR2pJTkxFSDZXeTVvVXN6MUl4R0o1dkk5cnUzXG5BQ291Qm9NVWorcUtvZEFCUDZFdThITnFYWWgrZzFIdG5DcWtZdmpQRGcwY2xxeVRMbkpMUGtXdEF0eW56bStTXG5IdzhMbEtMcXhRUHZMRWFiSXY0akJjUGdQMHUzVXhNem1xVGFpM0l0NDJ1Y2lYNUdZT1ZLM1o5Q2RwNGMyblpnXG5Fd0lEQVFBQlxuLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tXG4iLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE3MTQ2MzgwNjMsIm5iZlRpbWUiOjE3MTQ2MzA4NTMsInJvb20iOiIqIiwic3ViIjoidnBhYXMtbWFnaWMtY29va2llLTIyZmZlMTg5N2M0MjRhODViNzY4NGQ2MmNiZTExYTU2IiwiY29udGV4dCI6eyJ1c2VyIjp7Im1vZGVyYXRvciI6InRydWUiLCJpZCI6ImMyYjkzMTU1LWYwMzItNGVjYy04NzUyLTMxNjU5MzNiNzRhNCIsIm5hbWUiOiJuYW1lMSIsImVtYWlsIjoiZW1haWwxIn0sImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOiJ0cnVlIiwicmVjb3JkaW5nIjoidHJ1ZSIsIm91dGJvdW5kLWNhbGwiOiJ0cnVlIiwidHJhbnNjcmlwdGlvbiI6InRydWUifX0sImlzcyI6ImNoYXQiLCJhdWQiOiJqaXRzaSJ9.Z_yLDhibgaVsfx0bv8bE7WHZYuZWER2vWd7ZjRuEwKZtd7Y8z6yKHGtiaf7jV42ruWGBFd3CtqPGPsqolgxihuzMwSGRUYJjLrFR0gp9qXFiXG-7y4d2260tjDUxijcYySFbQBiijKGhqftFmU3mCp63Xw-9jO0uF1FrpUDN4jq62detSyGdpXJiI7Kvx1-wVGmxryjKyTrNoXdA-q2kKp9sr8uJT0vZ4pxRrzwIsfgiTTRdkod3_TUin4L7A6eD-ny77PS-6x9_2fBt6KMbFp1ZFdhX0tzI927LF_uKlzWAZHpOp7JCB6lLSk_bYUAMllhynTBCYDIiLpMonfpiQg")
+//                            .setRoom("vpaas-magic-cookie-22ffe1897c424a85b7684d62cbe11a56/myroom") // Settings for audio and video
+//                            .build()
 
                         JitsiMeetActivity.launch(this, options);
                     }){
