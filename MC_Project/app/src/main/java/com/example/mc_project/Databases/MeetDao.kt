@@ -9,11 +9,11 @@ import androidx.room.Query
 interface MeetDao {
 
     @Query("SELECT * FROM Meets")
-    fun getAll(): List<UserEntity>
+    fun getAll(): List<MeetEntity>
 
     @Query("SELECT * FROM Meets where Id= :id")
-    fun getMeet(id:String): UserEntity
+    fun getMeet(id:String): MeetEntity
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(vararg orientationEntity: UserEntity)
+    suspend fun insert(vararg orientationEntity: MeetEntity)
 }
