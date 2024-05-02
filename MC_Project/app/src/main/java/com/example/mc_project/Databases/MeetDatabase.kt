@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [MeetEntity::class], version = 1, exportSchema = false)
 abstract class MeetDatabase: RoomDatabase() {
-    abstract fun userdao(): MeetDao
+    abstract fun meetdao(): MeetDao
 
     companion object {
 
