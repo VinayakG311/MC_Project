@@ -2,6 +2,7 @@ package com.example.mc_project
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +10,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -22,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -60,23 +67,30 @@ fun Navigation(){
 }
 
 @Composable
-fun RegistrationScreen(){
+fun RegistrationScreen() {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
 
+    // Applying padding to the overall column for better spacing
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(32.dp), // Increased padding for better appearance
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-
     ) {
+        Text(
+            text = "Welcome",
+            style = MaterialTheme.typography.headlineMedium, // Enhanced typography
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }, // Added icon
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -86,24 +100,29 @@ fun RegistrationScreen(){
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }, // Added icon
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp),
+            visualTransformation = PasswordVisualTransformation(), // Hides the password
         )
 
-        Button(
+        ElevatedButton(
             onClick = {
-
-                val intent = Intent(context, MainActivity::class.java)
-                intent.putExtra("username", username)
-                context.startActivity(intent)
+                if (username.isNotEmpty() && password.isNotEmpty()) {
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.putExtra("username", username)
+                    context.startActivity(intent)
+                } else {
+                    // Handling empty fields
+                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                }
             },
-
-            ) {
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("LOGIN")
         }
     }
-
 }
 
 //@Composable
