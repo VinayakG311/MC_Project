@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +65,9 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
     fun MainScreen(username: String) {
         var isLoading by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
-
+        var create by remember { mutableStateOf(false) }
+        var join by remember { mutableStateOf(false) }
+        var Roomname by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,24 +87,70 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
 
             ElevatedButton(
                 onClick = {
-                    isLoading = true
-                    try {
-                        val options = JitsiMeetConferenceOptions.Builder()
-                            .setRoom("room1")
-                            .build()
+                    create=true
+                    join=false
 
-                        JitsiMeetActivity.launch(this@MainActivity, options)
-                        isLoading = false
-                    } catch (e: Exception) {
-                        isLoading = false
-                        errorMessage = "Failed to start the meeting: ${e.localizedMessage}"
-                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Create Room")
+                Text("Create New Room")
             }
 
+            ElevatedButton(
+                onClick = {
+                    create=false;
+                    join=true
+
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Join Existing Room")
+            }
+            if(create){
+                TextField(value = Roomname, onValueChange = {Roomname=it}, label = { Text(text = "Room name")})
+                ElevatedButton(
+                    onClick = {
+                        isLoading = true
+                        try {
+                            val options = JitsiMeetConferenceOptions.Builder()
+                                .setRoom(Roomname)
+                                .build()
+
+                            JitsiMeetActivity.launch(this@MainActivity, options)
+                            isLoading = false
+                        } catch (e: Exception) {
+                            isLoading = false
+                            errorMessage = "Failed to start the meeting: ${e.localizedMessage}"
+                        }
+                    },
+                    modifier =  Modifier.width(100 .dp).height(50 .dp)
+                ) {
+                    Text("create")
+                }
+
+            }
+            if (join){
+                TextField(value = Roomname, onValueChange = {Roomname=it}, label = { Text(text = "Room name")})
+                ElevatedButton(
+                    onClick = {
+                        isLoading = true
+                        try {
+                            val options = JitsiMeetConferenceOptions.Builder()
+                                .setRoom(Roomname)
+                                .build()
+
+                            JitsiMeetActivity.launch(this@MainActivity, options)
+                            isLoading = false
+                        } catch (e: Exception) {
+                            isLoading = false
+                            errorMessage = "Failed to start the meeting: ${e.localizedMessage}"
+                        }
+                    },
+                    modifier = Modifier.width(100 .dp).height(50 .dp)
+                ) {
+                    Text("join")
+                }
+            }
             if (errorMessage.isNotEmpty()) {
                 Text(
                     text = errorMessage,
@@ -116,13 +167,6 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MC_ProjectTheme {
-        MainActivity().MainScreen("Username")
-    }
-}
 
 //@Composable
 //fun VideoCallScreen(){
