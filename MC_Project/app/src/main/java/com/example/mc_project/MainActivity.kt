@@ -244,6 +244,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                         .padding(16.dp)
                 ) {
                     items(meetings) { meeting ->
+                        if (meeting.isNotEmpty()) {
                         val currentMeet = meetDao.getMeet(meeting)
                         Card(
                             modifier = Modifier
@@ -261,6 +262,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                                 Text(text = "Participants - ${currentMeet.Participants.length}")
                             }
                             Spacer(modifier = Modifier.height(8.dp))
+                        }
                         }
                     }
 
