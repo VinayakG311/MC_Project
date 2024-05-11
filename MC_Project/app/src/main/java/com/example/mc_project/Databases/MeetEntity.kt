@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 data class MeetEntity(
     @PrimaryKey
     @ColumnInfo("Id") val Id:String,
-    @ColumnInfo("Moderator") val Moderator:String
+//    @ColumnInfo("Moderator") val Moderator:String,
+    @ColumnInfo("Participants") val Participants:String
 
 ){
 }

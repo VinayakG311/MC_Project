@@ -1,17 +1,27 @@
 package com.example.mc_project
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
@@ -25,10 +35,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.mc_project.Databases.MeetDao
+import com.example.mc_project.Databases.MeetDatabase
+import com.example.mc_project.Databases.MeetEntity
+import com.example.mc_project.Databases.UserDao
+import com.example.mc_project.Databases.UserDatabase
+import com.example.mc_project.Databases.UserEntity
 import com.example.mc_project.ui.theme.MC_ProjectTheme
 import com.facebook.react.modules.core.PermissionListener
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jitsi.meet.sdk.JitsiMeet
 import org.jitsi.meet.sdk.JitsiMeetActivity
 import org.jitsi.meet.sdk.JitsiMeetActivityInterface
@@ -36,9 +56,17 @@ import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import java.net.URL
 
 class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
-
+    lateinit var userDatabase: UserDatabase
+    lateinit var userDao: UserDao
+    lateinit var meetDatabase: MeetDatabase
+    lateinit var meetDao: MeetDao
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        userDatabase = UserDatabase.getDatabase(applicationContext)
+        userDao = userDatabase.userdao()
+
+        meetDatabase = MeetDatabase.getDatabase(applicationContext)
+        meetDao = meetDatabase.meetdao()
 
         val defaultOptions = JitsiMeetConferenceOptions.Builder()
             .setServerURL(URL("https://meet.jit.si"))
@@ -55,19 +83,21 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(username)
+                    MainScreen(username,userDao)
                 }
             }
         }
     }
 
+
     @Composable
-    fun MainScreen(username: String) {
+    fun MainScreen(username: String,userDao: UserDao) {
         var isLoading by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
         var create by remember { mutableStateOf(false) }
         var join by remember { mutableStateOf(false) }
         var Roomname by remember { mutableStateOf("") }
+        var existing by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,37 +108,63 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
             if (isLoading) {
                 CircularProgressIndicator()
             }
+            if(!create && !join){
+                Text(
+                    text = "Welcome, $username!",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
 
-            Text(
-                text = "Welcome, $username!",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+                Button(
+                    onClick = {
+                        create=true
+                        join=false
+                        existing = false
 
-            ElevatedButton(
-                onClick = {
-                    create=true
-                    join=false
+                    },
 
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Create New Room")
+                    shape = CutCornerShape(15),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 15.dp, horizontal = 50.dp)
+                ) {
+                    Text("Create New Room")
+                }
+
+                Button(
+                    onClick = {
+                        create=false
+                        join=true
+                        existing = false
+
+                    },
+                    shape = CutCornerShape(15),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 15.dp, horizontal = 50.dp)
+                ) {
+                    Text("Join Existing Room")
+                }
+
+                Button(
+                    onClick = {
+                        create=false
+                        join=false
+                        existing = true
+
+                    },
+                    shape = CutCornerShape(15),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 15.dp, horizontal = 50.dp)
+                ) {
+                    Text("Existing Meeting Details")
+                }
             }
 
-            ElevatedButton(
-                onClick = {
-                    create=false;
-                    join=true
-
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Join Existing Room")
-            }
             if(create){
-                TextField(value = Roomname, onValueChange = {Roomname=it}, label = { Text(text = "Room name")})
-                ElevatedButton(
+                TextField(value = Roomname, keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),onValueChange = {Roomname=it}, label = { Text(text = "Room name")})
+                Button(
                     onClick = {
                         isLoading = true
                         try {
@@ -116,39 +172,99 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                                 .setRoom(Roomname)
                                 .build()
 
+                            val userDetails = userDao.getUser(username)
+                            var meetingDetails = userDetails.meetings
+                            meetingDetails = meetingDetails+" "+Roomname
+                            val password = userDetails.Password
+                            GlobalScope.launch {
+                                meetDao.insert(MeetEntity(Roomname,username))
+                            }
+                            GlobalScope.launch {
+                                userDao.insert(UserEntity(username,password,meetingDetails))
+                            }
+
+
                             JitsiMeetActivity.launch(this@MainActivity, options)
+
                             isLoading = false
                         } catch (e: Exception) {
                             isLoading = false
                             errorMessage = "Failed to start the meeting: ${e.localizedMessage}"
                         }
                     },
-                    modifier =  Modifier.width(100 .dp).height(50 .dp)
+                    shape = CutCornerShape(10)
+//                    modifier =  Modifier.width(100 .dp).height(50 .dp)
                 ) {
-                    Text("create")
+                    Text("Create")
                 }
 
             }
             if (join){
-                TextField(value = Roomname, onValueChange = {Roomname=it}, label = { Text(text = "Room name")})
-                ElevatedButton(
+                TextField(value = Roomname, onValueChange = {Roomname=it},keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done), label = { Text(text = "Room name")})
+                Button(
                     onClick = {
                         isLoading = true
                         try {
                             val options = JitsiMeetConferenceOptions.Builder()
                                 .setRoom(Roomname)
                                 .build()
-
+                            val userDetails = userDao.getUser(username)
+                            var meetingDetails = userDetails.meetings
+                            meetingDetails = meetingDetails+" "+Roomname
+                            val password = userDetails.Password
+                            var meetParticipants = meetDao.getMeet(Roomname).Participants
+                            meetParticipants = meetingDetails+" "+username
+                            GlobalScope.launch {
+                                meetDao.insert(MeetEntity(Roomname,meetParticipants))
+                            }
+                            GlobalScope.launch {
+                                userDao.insert(UserEntity(username,password,meetingDetails))
+                            }
                             JitsiMeetActivity.launch(this@MainActivity, options)
+
                             isLoading = false
                         } catch (e: Exception) {
                             isLoading = false
                             errorMessage = "Failed to start the meeting: ${e.localizedMessage}"
                         }
                     },
-                    modifier = Modifier.width(100 .dp).height(50 .dp)
+                    shape = CutCornerShape(10)
                 ) {
-                    Text("join")
+                    Text("Join")
+                }
+            }
+
+            if(existing) {
+                var meetingsString = userDao.getUser(username).meetings
+                Log.d("VINAYAK12"," ${username} ${meetingsString}")
+                val meetings = meetingsString.split(" ")
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    items(meetings) { meeting ->
+                        val currentMeet = meetDao.getMeet(meeting)
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .background(Color.White)
+                            ) {
+                                Text(text = "Meeting Name - ${currentMeet.Id}")
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(text = "Participants - ${currentMeet.Participants.length}")
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+
                 }
             }
             if (errorMessage.isNotEmpty()) {

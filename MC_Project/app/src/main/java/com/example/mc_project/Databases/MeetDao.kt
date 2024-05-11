@@ -14,6 +14,6 @@ interface MeetDao {
     @Query("SELECT * FROM Meets where Id= :id")
     fun getMeet(id:String): MeetEntity
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(vararg orientationEntity: MeetEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(meetEntity: MeetEntity)
 }
