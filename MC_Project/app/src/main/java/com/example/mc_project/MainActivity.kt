@@ -259,7 +259,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                             ) {
                                 Text(text = "Meeting Name - ${currentMeet.Id}")
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(text = "Participants - ${currentMeet.Participants.length}")
+                                Text(text = "Participants - ${currentMeet.Participants.split(" ").size}")
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                         }
