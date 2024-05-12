@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MC_Project</string>
     <string name="title_activity_homse_screen">HomseScreen</string>
+    <string name="title_activity_user_login">UserLogin</string>
 </resources>

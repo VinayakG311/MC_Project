@@ -29,9 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -47,15 +49,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class HomeScreen : ComponentActivity() {
-    lateinit var userDatabase: UserDatabase
-    lateinit var userDao: UserDao
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userDatabase = UserDatabase.getDatabase(applicationContext)
-        userDao = userDatabase.userdao()
-//        GlobalScope.launch {
-//            userDao.delete()
-//        }
+
         setContent {
             MC_ProjectTheme {
                 // A surface container using the 'background' color from the theme
@@ -63,204 +60,63 @@ class HomeScreen : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginScreen(userDao)
+                    WelcomeScreen()
                 }
             }
         }
     }
 }
 
-//@Composable
-//fun Navigation(){
-//    val navController = rememberNavController()
-//    NavHost(navController = navController, startDestination =  "login"){
-//        composable(route = "login"){
-//            LoginScreen()
-//        }
-//        composable(route = "videocall"){
-//            LoginScreen()
-//        }
-//    }
-//}
-
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun RegistrationScreen(userDao: UserDao){
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var verifyPassword by remember { mutableStateOf("") }
+fun WelcomeScreen(){
     val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp), // Increased padding for better appearance
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(horizontal = 15.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "SIGN IN",
-            style = MaterialTheme.typography.headlineMedium, // Enhanced typography
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }, // Added icon
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }, // Added icon
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            visualTransformation = PasswordVisualTransformation(), // Hides the password
-        )
-
-        OutlinedTextField(
-            value = verifyPassword,
-            onValueChange = { verifyPassword = it },
-            label = { Text("Verify Your Password") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }, // Added icon
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            visualTransformation = PasswordVisualTransformation(), // Hides the password
+            text = "Welcome To Video Call App",
+            style = MaterialTheme.typography.headlineMedium,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 28.dp)
         )
 
         Button(
-            onClick = {
-
-                if (username.isNotEmpty() && password.isNotEmpty() && password == verifyPassword) {
-                    GlobalScope.launch {
-                        userDao.insert(UserEntity(username = username,Password = password, meetings = ""))
-                    }
-
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.putExtra("username", username)
-                    context.startActivity(intent)
-                }
-                else if(password != verifyPassword){
-                    Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                }
-                else {
-                    // Handling empty fields
-                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                }
-            },
+            onClick = { val intent = Intent(context,UserLogin::class.java)
+                intent.putExtra("action","login")
+                context.startActivity(intent) },
             shape = CutCornerShape(15)
-//            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("SIGN IN")
-        }
 
 
-    }
 
-}
-
-@Composable
-fun LoginScreen(userDao: UserDao) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val context = LocalContext.current
-    var register by remember { mutableStateOf(false) }
-
-    // Applying padding to the overall column for better spacing
-    if(!register){
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp), // Increased padding for better appearance
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome",
-                style = MaterialTheme.typography.headlineMedium, // Enhanced typography
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp)
+                text = "Existing User",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
             )
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }, // Added icon
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+        }
+
+        Button(
+            onClick = {
+                      val intent = Intent(context,UserLogin::class.java)
+                intent.putExtra("action","create")
+                context.startActivity(intent)
+            },
+
+            shape = CutCornerShape(15)
+
+
+        ) {
+            Text(
+                text = "New User",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
             )
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }, // Added icon
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                visualTransformation = PasswordVisualTransformation(), // Hides the password
-            )
-
-            Button(
-                onClick = {
-                    if (username.isNotEmpty() && password.isNotEmpty()) {
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.putExtra("username", username)
-                        context.startActivity(intent)
-                    } else {
-                        // Handling empty fields
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                shape = CutCornerShape(15)
-//            modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("LOGIN")
-            }
-
-            Button(
-                onClick = {
-                    register = true
-                },
-                shape = CutCornerShape(15)
-//            modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("SIGN IN")
-            }
         }
     }
-    if(register){
-        RegistrationScreen(userDao)
-    }
-
 }
-
-//@Composable
-//fun Greeting2(name: String, modifier: Modifier = Modifier) {
-//    Text(
-//        text = "Hello $name!",
-//        modifier = modifier
-//    )
-//}
-
-//@Preview(showBackground = true)
-//@Composable
-//fun GreetingPreview2() {
-//    MC_ProjectTheme {
-//        Greeting2("Android")
-//    }
-//}

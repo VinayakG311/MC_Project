@@ -1,5 +1,6 @@
 package com.example.mc_project
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -19,11 +20,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -98,6 +104,9 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
         var join by remember { mutableStateOf(false) }
         var Roomname by remember { mutableStateOf("") }
         var existing by remember { mutableStateOf(false) }
+        val context = LocalContext.current
+
+        Spacer(modifier = Modifier.height(15.dp))
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -105,10 +114,11 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
             if (isLoading) {
                 CircularProgressIndicator()
             }
-            if(!create && !join){
+            if(!create && !join && !existing){
                 Text(
                     text = "Welcome, $username!",
                     style = MaterialTheme.typography.headlineMedium,
@@ -160,6 +170,13 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                 ) {
                     Text("Existing Meeting Details")
                 }
+
+                Button(onClick = {
+                    val intent = Intent(context,HomeScreen::class.java)
+                    context.startActivity(intent)
+                },shape = CutCornerShape(10)) {
+                    Text("Sign Out")
+                }
             }
 
             if(create){
@@ -197,6 +214,10 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                 ) {
                     Text("Create")
                 }
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(onClick = { create = false },shape = CutCornerShape(10)) {
+                    Text("Back")
+                }
 
             }
             if (join){
@@ -232,9 +253,18 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                 ) {
                     Text("Join")
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(onClick = { join = false },shape = CutCornerShape(10)) {
+                    Text("Back")
+                }
             }
 
             if(existing) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(onClick = { existing = false },shape = CutCornerShape(10)) {
+                    Text("Back")
+                }
                 var meetingsString = userDao.getUser(username).meetings
                 Log.d("VINAYAK12"," ${username} ${meetingsString}")
                 val meetings = meetingsString.split(" ")
@@ -248,7 +278,8 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                         val currentMeet = meetDao.getMeet(meeting)
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth().padding(20.dp,20.dp),
+
 
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -268,6 +299,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
 
 
                 }
+
             }
             if (errorMessage.isNotEmpty()) {
                 Text(

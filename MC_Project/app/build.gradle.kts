@@ -58,6 +58,8 @@ dependencies {
 
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("org.jitsi.react:jitsi-meet-sdk:+")
     implementation("androidx.core:core-ktx:1.13.0")
