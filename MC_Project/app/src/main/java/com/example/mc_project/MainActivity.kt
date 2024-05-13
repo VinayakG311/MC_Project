@@ -1,34 +1,30 @@
 package com.example.mc_project
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,9 +38,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.mc_project.Databases.MeetDao
 import com.example.mc_project.Databases.MeetDatabase
 import com.example.mc_project.Databases.MeetEntity
@@ -61,7 +61,7 @@ import org.jitsi.meet.sdk.JitsiMeetActivityInterface
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import java.net.URL
 
-class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
+class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
     lateinit var userDatabase: UserDatabase
     lateinit var userDao: UserDao
     lateinit var meetDatabase: MeetDatabase
@@ -94,8 +94,6 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
             }
         }
     }
-
-
     @Composable
     fun MainScreen(username: String,userDao: UserDao) {
         var isLoading by remember { mutableStateOf(false) }
@@ -114,6 +112,8 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            LogoAndTitle()
+            Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
                 CircularProgressIndicator()
@@ -123,7 +123,9 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                     text = "Welcome, $username!",
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
+                                       .semantics { contentDescription = "Welcome to the video conferencing app for $username" }
                 )
+
 
                 Button(
                     onClick = {
@@ -137,6 +139,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 15.dp, horizontal = 50.dp)
+                        .semantics { contentDescription = "Create new room" }
                 ) {
                     Text("Create New Room")
                 }
@@ -311,10 +314,28 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface {
             }
         }
     }
-
+    @Composable
+    fun LogoAndTitle() {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(id = R.drawable.applogo),
+                contentDescription = "VidCall Logo",
+                modifier = Modifier.size(80.dp)
+            )
+            Text(
+                text = "VidCall",
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                fontSize = 32.sp,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    }
     override fun requestPermissions(p0: Array<out String>?, p1: Int, p2: PermissionListener?) {
         TODO("Not yet implemented")
     }
+
 }
 
 
