@@ -1,39 +1,26 @@
 package com.example.mc_project
 
 
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,27 +32,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mc_project.Databases.MeetDao
-import com.example.mc_project.Databases.MeetDatabase
-import com.example.mc_project.Databases.MeetEntity
-import com.example.mc_project.Databases.UserDao
-import com.example.mc_project.Databases.UserDatabase
-import com.example.mc_project.Databases.UserEntity
+import com.example.mc_project.Databases.*
 import com.example.mc_project.ui.theme.MC_ProjectTheme
 import com.facebook.react.modules.core.PermissionListener
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.jitsi.meet.sdk.JitsiMeet
-import org.jitsi.meet.sdk.JitsiMeetActivity
-import org.jitsi.meet.sdk.JitsiMeetActivityInterface
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
+import org.jitsi.meet.sdk.*
 import java.net.URL
 
-class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
+class MainActivity : ComponentActivity(), JitsiMeetActivityInterface,SensorEventListener{
     lateinit var userDatabase: UserDatabase
     lateinit var userDao: UserDao
     lateinit var meetDatabase: MeetDatabase
     lateinit var meetDao: MeetDao
+    private lateinit var sensorManager: SensorManager
+    private var lightSensor: Sensor? = null
+    private var lightLevel = mutableStateOf(0f)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userDatabase = UserDatabase.getDatabase(applicationContext)
@@ -73,6 +55,9 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
 
         meetDatabase = MeetDatabase.getDatabase(applicationContext)
         meetDao = meetDatabase.meetdao()
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
 
         val defaultOptions = JitsiMeetConferenceOptions.Builder()
             .setServerURL(URL("https://meet.jit.si"))
@@ -90,10 +75,46 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(username,userDao)
+                    if (lightLevel.value < 10) { // Example threshold
+                        LightWarning()
+                    }
                 }
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        lightSensor?.also { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
+            lightLevel.value = event.values[0]
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    @Composable
+    fun LightWarning() {
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text("Low Light Detected") },
+            text = { Text("Your screen brightness is quite low. Try turning it up for a clearer view.") },
+            confirmButton = {
+                Button(onClick = {}) { Text("OK") }
+            }
+        )
+    }
+
+
     @Composable
     fun MainScreen(username: String,userDao: UserDao) {
         var isLoading by remember { mutableStateOf(false) }
@@ -364,6 +385,8 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
 //    }
 //}
 //}
+
+
 
 
 

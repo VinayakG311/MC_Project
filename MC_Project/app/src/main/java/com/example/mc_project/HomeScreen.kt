@@ -75,7 +75,7 @@ class HomeScreen : ComponentActivity() {
     }
 }
 
-@Composable
+@Composable 
 fun WelcomeScreen(){
     val context = LocalContext.current
     Column(
