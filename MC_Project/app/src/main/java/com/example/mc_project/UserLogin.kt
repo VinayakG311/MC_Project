@@ -1,7 +1,9 @@
 package com.example.mc_project
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -139,13 +141,25 @@ fun RegistrationScreen(userDao: UserDao){
             onClick = {
 
                 if (username.isNotEmpty() && password.isNotEmpty() && password == verifyPassword) {
-                    GlobalScope.launch {
-                        userDao.insert(UserEntity(username = username,Password = password, meetings = ""))
+                    val u =userDao.getUser(username)
+                    if(u!=null){
+                        Toast.makeText(context, "username already exists", Toast.LENGTH_SHORT).show()
                     }
+                    else {
+                        GlobalScope.launch {
+                            userDao.insert(
+                                UserEntity(
+                                    username = username,
+                                    Password = password,
+                                    meetings = ""
+                                )
+                            )
+                        }
 
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.putExtra("username", username)
-                    context.startActivity(intent)
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.putExtra("username", username)
+                        context.startActivity(intent)
+                    }
                 }
                 else if(password != verifyPassword){
                     Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
@@ -173,14 +187,13 @@ fun RegistrationScreen(userDao: UserDao){
 
 }
 
+@SuppressLint("LogNotTimber")
 @Composable
 fun LoginScreen(userDao: UserDao) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
-   
-
-        Column(
+    Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(32.dp), // Increased padding for better appearance
@@ -218,10 +231,30 @@ fun LoginScreen(userDao: UserDao) {
 
             Button(
                 onClick = {
+
+
                     if (username.isNotEmpty() && password.isNotEmpty()) {
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.putExtra("username", username)
-                        context.startActivity(intent)
+                        var u=userDao.getUser(username)
+                        var un="";
+                        var ps=""
+                        try{
+                            un=u.username
+                            ps=u.Password
+                        } catch (e:Exception){
+                            Toast.makeText(context, "User does not exist", Toast.LENGTH_SHORT).show()
+                        }
+                        if(username==un && password==ps){
+                            Log.d("success","success")
+                            val intent = Intent(context, MainActivity::class.java)
+                            intent.putExtra("username", username)
+                            context.startActivity(intent)
+
+                        }
+                        else{
+                            Toast.makeText(context, "Incorrect Password", Toast.LENGTH_SHORT).show()
+
+                        }
+
                     } else {
                         // Handling empty fields
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
