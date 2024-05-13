@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
                     text = "Welcome, $username!",
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
-                                       .semantics { contentDescription = "Welcome to the video conferencing app for $username" }
+                                       .semantics { contentDescription = "Welcome to the video conferencing app $username" }
                 )
 
 
@@ -155,6 +155,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 15.dp, horizontal = 50.dp)
+                        .semantics { contentDescription = "Join Existing Room" }
                 ) {
                     Text("Join Existing Room")
                 }
@@ -170,6 +171,7 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 15.dp, horizontal = 50.dp)
+                        .semantics { contentDescription = "Existing Meeting Details" }
                 ) {
                     Text("Existing Meeting Details")
                 }
@@ -177,7 +179,13 @@ class MainActivity : ComponentActivity(), JitsiMeetActivityInterface{
                 Button(onClick = {
                     val intent = Intent(context,HomeScreen::class.java)
                     context.startActivity(intent)
-                },shape = CutCornerShape(10)) {
+                },
+                    shape = CutCornerShape(10),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 15.dp, horizontal = 50.dp)
+                        .semantics { contentDescription = "Sign Out" }
+                    ) {
                     Text("Sign Out")
                 }
             }
